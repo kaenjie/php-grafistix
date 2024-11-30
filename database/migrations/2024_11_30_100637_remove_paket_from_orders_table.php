@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->string('customer_name');
-            $table->string('customer_email');
-            $table->string('product');
-            $table->date('order_date'); 
-            $table->timestamps();
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('paket'); // Menghapus kolom 'paket'
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('paket'); // Menambahkan kembali kolom 'paket' jika rollback dilakukan
+        });
     }
 };
