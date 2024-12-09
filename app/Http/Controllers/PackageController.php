@@ -7,21 +7,21 @@ use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class OrderController extends Controller
+class PackageController extends Controller
 {
     /**
-     * Display a listing of the orders.
+     * Display a listing of the packages.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $orders = Order::with('package')->get(); // Eager load the package relationship
-        return response()->json(['data' => $orders]);
+        $packages = Package::all(); // Retrieve all packages
+        return response()->json(['data' => $packages]);
     }
 
     /**
-     * Store a newly created order in storage.
+     * Store a newly created package in storage.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
@@ -29,74 +29,64 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'paket' => 'required|string|max:255',
-            'payment_method' => 'required|string|in:ovo,transfer,credit_card',
-            'has_paid' => 'required|boolean',
-            'order_date' => 'required|date',
-            'id_paket' => 'required|exists:packages,id', // Ensure id_paket exists in packages table
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $order = Order::create($request->all());
-        return response()->json(['message' => 'Order created successfully!', 'data' => $order]);
+        $package = Package::create($request->all());
+        return response()->json(['message' => 'Package created successfully!', 'data' => $package]);
     }
 
     /**
-     * Display the specified order.
+     * Display the specified package.
      *
-     * @param \App\Models\Order $order
+     * @param \App\Models\Package $package
      * @return \Illuminate\Http\Response
      */
-    public function show(Order $order)
+    public function show(Package $package)
     {
-        return response()->json(['data' => $order->load('package')]); // Load related package
+        return response()->json(['data' => $package]);
     }
 
     /**
-     * Update the specified order in storage.
+     * Update the specified package in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Order $order
+     * @param \App\Models\Package $package
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Package $package)
     {
         $validator = Validator::make($request->all(), [
-            'full_name' => 'string|max:255',
-            'email' => 'email|max:255',
-            'address' => 'string|max:255',
-            'city' => 'string|max:255',
-            'paket' => 'string|max:255',
-            'payment_method' => 'string|in:ovo,transfer,credit_card',
-            'has_paid' => 'boolean',
-            'order_date' => 'date',
-            'id_paket' => 'exists:packages,id',
+            'name' => 'string|max:255',
+            'description' => 'string',
+            'price' => 'numeric',
+            'is_active' => 'boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $order->update($request->all());
-        return response()->json(['message' => 'Order updated successfully!', 'data' => $order]);
+        $package->update($request->all());
+        return response()->json(['message' => 'Package updated successfully!', 'data' => $package]);
     }
 
     /**
-     * Remove the specified order from storage.
+     * Remove the specified package from storage.
      *
-     * @param \App\Models\Order $order
+     * @param \App\Models\Package $package
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Order $order)
+    public function destroy(Package $package)
     {
-        $order->delete();
-        return response()->json(['message' => 'Order deleted successfully!']);
+        $package->delete();
+        return response()->json(['message' => 'Package deleted successfully!']);
     }
 }

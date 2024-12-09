@@ -17,7 +17,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with('packages')->get();
+        $orders = Order::with('package')->get();
         return response()->json($orders);
     }
 

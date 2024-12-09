@@ -27,19 +27,19 @@ class Title extends Model
      *
      * @return Attribute
      */
-    protected function poto_1(): Attribute
+    protected function poto1(): Attribute
     {
         return Attribute::make(
             get: fn ($poto_1) => $poto_1 ? url('/storage/title/' . $poto_1) : null,
         );
-    }
+    }    
 
     /**
      * Accessor for poto_2
      *
      * @return Attribute
      */
-    protected function poto_2(): Attribute
+    protected function poto2(): Attribute
     {
         return Attribute::make(
             get: fn ($poto_2) => $poto_2 ? url('/storage/title/' . $poto_2) : null,
