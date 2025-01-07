@@ -20,13 +20,17 @@ class Order extends Model
         'email',
         'address',
         'city',
-        'paket',
         'payment_method',
         'has_paid',
         'order_date',
         'id_paket', // Foreign key to Package
     ];
 
+    // Cast field has_paid menjadi boolean
+    protected $casts = [
+        'has_paid' => 'boolean',
+    ];
+    
     /**
      * Get the package that owns the order.
      */
@@ -34,4 +38,5 @@ class Order extends Model
     {
         return $this->belongsTo(Package::class, 'id_paket');
     }
+    
 }

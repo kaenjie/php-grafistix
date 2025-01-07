@@ -21,7 +21,7 @@ class PackageResource extends JsonResource
             'name'        => $this->name, // Nama paket
             'description' => $this->description, // Deskripsi paket
             'price'       => $this->price, // Harga paket
-            'duration'    => $this->duration, // Durasi paket (opsional)
+            'is_active'    => $this->is_active, // Paket aktif atau tidak
             'created_at'  => $this->created_at,
             'updated_at'  => $this->updated_at,
         ];
@@ -31,5 +31,4 @@ class PackageResource extends JsonResource
     {
         return new OrderResource(true, 'Order retrieved successfully!', $order->load('package'));
     }
-
 }

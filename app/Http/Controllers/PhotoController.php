@@ -16,6 +16,7 @@ class PhotoController extends Controller
      */
     public function index()
     {
+        // Mengambil semua foto dengan relasi 'title'
         $photos = Photo::with('title')->get(); // Eager load the related Title
         return response()->json(['data' => $photos]);
     }
@@ -77,28 +78,38 @@ class PhotoController extends Controller
      */
     public function update(Request $request, Photo $photo)
     {
-        dd($request);
-        // $validator = Validator::make($request->all(), [
-        //     'title_id' => 'exists:titles,id',
-        //     'file_path' => 'file|mimes:jpeg,png,jpg|max:2048',
-        // ]);
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'title_id' => 'sometimes|exists:titles,id', // Jika ada title_id, pastikan ada di tabel titles
+            'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Jika ada file baru, validasi file
+        ]);
 
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
-        // }
+        // Perbarui 'title_id' jika ada dalam request
+        if ($request->has('title_id')) {
+            $photo->title_id = $request->title_id;
+        }
 
-        // if ($request->hasFile('file_path')) {
-        //     $file = $request->file('file_path');
-        //     $filePath = $file->store('uploads/photos', 'public');
-        //     $requestData = $request->all();
-        //     $requestData['file_path'] = $filePath;
-        // } else {
-        //     $requestData = $request->except('file_path');
-        // }
+        // Perbarui file jika ada dalam request
+        if ($request->hasFile('file_path')) {
+            $file = $request->file('file_path');
+            $filePath = $file->store('uploads/photos', 'public');
+            $photo->file_path = $filePath; // Menyimpan path file yang baru
+        }
 
-        // $photo->update($requestData);
-        // return response()->json(['message' => 'Photo updated successfully!', 'data' => $photo]);
+        // Simpan perubahan ke database
+        $photo->save();
+
+        // Kembalikan respons dengan data foto yang sudah diperbarui
+        return response()->json([
+            'message' => 'Photo updated successfully!',
+            'data' => $photo,
+            'file_url' => asset('storage/' . $photo->file_path), // URL akses file
+        ]);
     }
 
     /**
@@ -109,7 +120,14 @@ class PhotoController extends Controller
      */
     public function destroy(Photo $photo)
     {
+        // Hapus file terkait jika ada
+        if (file_exists(storage_path('app/public/' . $photo->file_path))) {
+            unlink(storage_path('app/public/' . $photo->file_path)); // Menghapus file fisik
+        }
+
+        // Hapus entri foto dari database
         $photo->delete();
+
         return response()->json(['message' => 'Photo deleted successfully!']);
     }
 }

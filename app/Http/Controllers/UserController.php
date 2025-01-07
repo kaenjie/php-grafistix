@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -17,8 +18,11 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Ambil semua pengguna
         $users = User::all();
-        return response()->json(['data' => $users]);
+        
+        // Kembalikan respons menggunakan UserResource
+        return UserResource::collection($users);
     }
 
     /**
@@ -29,28 +33,36 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:15',
-            'address' => 'nullable|string|max:255',
-        ]);
-
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+                'phone' => 'nullable|string|max:15',
+                'address' => 'nullable|string|max:255',
+            ]);
+    
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+            }
+    
+            // Simpan pengguna baru
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'address' => $request->address,
+            ]);
+    
+            // Kembalikan respons menggunakan UserResource
+            return response()->json(['message' => 'User created successfully!', 'data' => new UserResource($user)], 201);
+    
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ]);
-
-        return response()->json(['message' => 'User created successfully!', 'data' => $user], 201);
     }
+    
 
     /**
      * Display the specified user.
@@ -60,7 +72,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json(['data' => $user]);
+        // Kembalikan pengguna menggunakan UserResource
+        return new UserResource($user);
     }
 
     /**
@@ -72,37 +85,23 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Validasi input
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:15',
-            'address' => 'nullable|string|max:255',
+            'name' => 'string|max:255',
+            'email' => 'email|unique:users,email,' . $user->id,
+            'password' => 'string|min:8|confirmed',
+            'phone' => 'string|max:15',
+            'address' => 'string|max:255',
         ]);
-
+    
         if ($validator->fails()) {
-            throw new ValidationException($validator);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        if ($request->has('name')) {
-            $user->name = $request->name;
-        }
-        if ($request->has('email')) {
-            $user->email = $request->email;
-        }
-        if ($request->has('password')) {
-            $user->password = Hash::make($request->password);
-        }
-        if ($request->has('phone')) {
-            $user->phone = $request->phone;
-        }
-        if ($request->has('address')) {
-            $user->address = $request->address;
-        }
-
-        $user->save();
+        $user->update($request->all());
         return response()->json(['message' => 'User updated successfully!', 'data' => $user]);
     }
+    
 
     /**
      * Remove the specified user from storage.
@@ -112,7 +111,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // Hapus pengguna
         $user->delete();
+
+        // Kembalikan respons sukses
         return response()->json(['message' => 'User deleted successfully!']);
     }
 }

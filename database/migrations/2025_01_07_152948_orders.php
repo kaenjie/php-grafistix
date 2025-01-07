@@ -17,14 +17,13 @@ return new class extends Migration
             $table->string('email');
             $table->string('address');
             $table->string('city');
-            $table->string('paket');
             $table->string('payment_method')->default('ovo');
-            $table->boolean('has_paid')->default(false);
+            $table->boolean('has_paid')->default(false); // Boolean field
             $table->date('order_date');
-            $table->unsignedBigInteger('id_paket');
+            $table->unsignedBigInteger('id_paket'); // Foreign key to packages table
             $table->timestamps();
 
-            // Menambahkan foreign key untuk relasi dengan tabel packages
+            // Set foreign key
             $table->foreign('id_paket')->references('id')->on('packages')->onDelete('cascade');
         });
     }
@@ -34,10 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropForeign(['id_paket']);
-        });
-        
         Schema::dropIfExists('orders');
     }
 };
