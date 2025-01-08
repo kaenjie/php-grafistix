@@ -101,8 +101,8 @@ class UserController extends Controller
     
         // Jika password diisi, simpan plaintext dan hash sebelum menyimpannya
         if ($request->filled('password')) {
-            $plaintextPassword = $request->password; // Simpan password dalam bentuk plaintext
-            $data['password'] = Hash::make($request->password); // Hash password untuk disimpan
+            $plaintextPassword = $request->password; 
+            $data['password'] = Hash::make($request->password);
         }
     
         $user->update($data);
