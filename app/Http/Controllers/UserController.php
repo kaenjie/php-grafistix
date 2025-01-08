@@ -85,24 +85,38 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255',
             'email' => 'email|unique:users,email,' . $user->id,
-            'password' => 'string|min:8|confirmed',
-            'phone' => 'string|max:15',
-            'address' => 'string|max:255',
+            'password' => 'nullable|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:15',
+            'address' => 'nullable|string|max:255',
         ]);
     
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        $user->update($request->all());
-        return response()->json(['message' => 'User updated successfully!', 'data' => $user]);
+    
+        $data = $request->only(['name', 'email', 'phone', 'address']);
+    
+        // Jika password diisi, simpan plaintext dan hash sebelum menyimpannya
+        if ($request->filled('password')) {
+            $plaintextPassword = $request->password; // Simpan password dalam bentuk plaintext
+            $data['password'] = Hash::make($request->password); // Hash password untuk disimpan
+        }
+    
+        $user->update($data);
+    
+        // Tambahkan password plaintext ke dalam respon jika tersedia
+        $response = new UserResource($user);
+        if (isset($plaintextPassword)) {
+            $response = array_merge($response->toArray($request), ['password' => $plaintextPassword]);
+        }
+    
+        return response()->json(['message' => 'User updated successfully!', 'data' => $response]);
     }
     
-
+    
     /**
      * Remove the specified user from storage.
      *

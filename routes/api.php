@@ -13,3 +13,7 @@ Route::apiResource('/packages', App\Http\Controllers\PackageController::class);
 Route::apiResource('/users', App\Http\Controllers\UserController::class);
 Route::apiResource('/titles', App\Http\Controllers\TitleController::class);
 Route::apiResource('/photos', App\Http\Controllers\PhotoController::class);
+Route::apiResource('/testimonis', App\Http\Controllers\TestimoniController::class);
+Route::apiResource('/abouts', App\Http\Controllers\AboutController::class);
+Route::apiResource('/faqs', App\Http\Controllers\FAQController::class);
+Route::apiResource('/banners', App\Http\Controllers\BannerController::class);

@@ -58,7 +58,7 @@ class OrderController extends Controller
          $order = Order::create($request->all());
      
          return response()->json([
-             'message' => 'Order successfully created!',
+             'message' => 'Order created successfully!',
              'data' => $order
          ], Response::HTTP_CREATED);
      }
@@ -102,11 +102,13 @@ class OrderController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-    
+
         $order = Order::findOrFail($id);
-        $order->update($request->all());
-    
-        return response()->json(new \App\Http\Resources\OrderResource(true, 'Order successfully updated!', $order), Response::HTTP_OK);
+
+        \Log::info('Order Before Update:', $order->toArray());
+        $order->update($request->all()); 
+        \Log::info('Order After Update:', $order->toArray());
+        return response()->json(new \App\Http\Resources\OrderResource(true, 'Order updated successfully!', $order), Response::HTTP_OK);
     }
     
 
@@ -123,7 +125,7 @@ class OrderController extends Controller
     
         return response()->json([
             'success' => true,
-            'message' => 'Order successfully deleted!',
+            'message' => 'Order deleted successfully!',
         ], Response::HTTP_OK);
     }
     

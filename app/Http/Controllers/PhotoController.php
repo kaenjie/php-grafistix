@@ -17,7 +17,7 @@ class PhotoController extends Controller
     public function index()
     {
         // Mengambil semua foto dengan relasi 'title'
-        $photos = Photo::with('title')->get(); // Eager load the related Title
+        $photos = Photo::with('title')->get();
         return response()->json(['data' => $photos]);
     }
 
@@ -42,19 +42,19 @@ class PhotoController extends Controller
 
         // Simpan file yang diunggah
         $file = $request->file('file_path');
-        $filePath = $file->store('uploads/photos', 'public'); // Simpan di storage/app/public/uploads/photos
+        $filePath = $file->store('uploads/photos', 'public');
 
         // Simpan data ke database
         $photo = Photo::create([
             'title_id' => $request->title_id,
-            'file_path' => $filePath, // Path file yang tersimpan
+            'file_path' => $filePath,
         ]);
 
         // Kembalikan respons dengan URL file
         return response()->json([
             'message' => 'Photo created successfully!',
             'data' => $photo,
-            'file_url' => asset('storage/' . $filePath), // URL akses file
+            'file_url' => asset('storage/' . $filePath),
         ]);
     }
 
@@ -80,8 +80,8 @@ class PhotoController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'title_id' => 'sometimes|exists:titles,id', // Jika ada title_id, pastikan ada di tabel titles
-            'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Jika ada file baru, validasi file
+            'title_id' => 'sometimes|exists:titles,id',
+            'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
         ]);
 
         // Jika validasi gagal
@@ -94,6 +94,10 @@ class PhotoController extends Controller
             $photo->title_id = $request->title_id;
         }
 
+         $url_photo = $photo -> file_path;
+         $filePath = $url_photo;
+
+
         // Perbarui file jika ada dalam request
         if ($request->hasFile('file_path')) {
             $file = $request->file('file_path');
@@ -102,7 +106,12 @@ class PhotoController extends Controller
         }
 
         // Simpan perubahan ke database
-        $photo->save();
+        $photo->update(
+            [
+                'title_id' => $request->title_id,
+                'file_path' => $filePath, // Path file yang tersimpan
+            ]
+        );
 
         // Kembalikan respons dengan data foto yang sudah diperbarui
         return response()->json([
