@@ -6,6 +6,8 @@ use App\Models\Photo;
 use App\Models\Title;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\PhotoResource;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -16,9 +18,8 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        // Mengambil semua foto dengan relasi 'title'
-        $photos = Photo::with('title')->get();
-        return response()->json(['data' => $photos]);
+        $photos = Photo::all();
+        return PhotoResource::collection($photos);
     }
 
     /**
@@ -31,30 +32,31 @@ class PhotoController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'title_id' => 'required|exists:titles,id', // Pastikan title_id ada di tabel titles
-            'file_path' => 'required|file|mimes:jpeg,png,jpg|max:2048', // Validasi file upload
+            'title_id' => 'required|exists:titles,id',
+            'file_path' => 'required|file|mimes:jpeg,png,jpg',
         ]);
 
-        // Jika validasi gagal
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Simpan file yang diunggah
+        // Simpan file di direktori public/uploads/photos
         $file = $request->file('file_path');
-        $filePath = $file->store('uploads/photos', 'public');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $destinationPath = public_path('/storage/uploads/photos');
+        $file->move($destinationPath, $fileName);
 
         // Simpan data ke database
         $photo = Photo::create([
             'title_id' => $request->title_id,
-            'file_path' => $filePath,
+            'file_path' => 'uploads/photos/' . $fileName, // Simpan path relatif
         ]);
 
-        // Kembalikan respons dengan URL file
+        // Kembalikan respons
         return response()->json([
             'message' => 'Photo created successfully!',
             'data' => $photo,
-            'file_url' => asset('storage/' . $filePath),
+            'file_url' => 'uploads/photos/' . $fileName, // Gunakan path relatif
         ]);
     }
 
@@ -81,7 +83,7 @@ class PhotoController extends Controller
         // Validasi input
         $validator = Validator::make($request->all(), [
             'title_id' => 'sometimes|exists:titles,id',
-            'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:5120',
+            'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:10240',
         ]);
 
         // Jika validasi gagal
@@ -101,8 +103,9 @@ class PhotoController extends Controller
         // Perbarui file jika ada dalam request
         if ($request->hasFile('file_path')) {
             $file = $request->file('file_path');
-            $filePath = $file->store('uploads/photos', 'public');
-            $photo->file_path = $filePath; // Menyimpan path file yang baru
+            $fileName = time() . '_' . $file_path->getClientOriginalName();
+            $destinationPath = storage_path('uploads/photos', 'public');
+            $filePath->move($destinationPath, $fileName);
         }
 
         // Simpan perubahan ke database

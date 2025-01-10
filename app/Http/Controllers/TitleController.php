@@ -46,7 +46,8 @@ class TitleController extends Controller
         if ($request->hasFile('poto_1')) {
             $file1 = $request->file('poto_1');
             $file1Name = time() . '_poto_1.' . $file1->getClientOriginalExtension();
-            $file1->storeAs('public/title', $file1Name);
+            $destinationPath = public_path('/storage/title');
+            $file1->move($destinationPath, $file1Name);
         }
 
         // Handle poto_2 upload if exists
@@ -54,7 +55,8 @@ class TitleController extends Controller
         if ($request->hasFile('poto_2')) {
             $file2 = $request->file('poto_2');
             $file2Name = time() . '_poto_2.' . $file2->getClientOriginalExtension();
-            $file2->storeAs('public/title', $file2Name);
+            $destinationPath = public_path('/storage/title');
+            $file2->move($destinationPath, $file2Name);
         }
 
         // Create title with the provided data
@@ -111,8 +113,8 @@ class TitleController extends Controller
 
             $file1 = $request->file('poto_1');
             $file1Name = time() . '_poto_1.' . $file1->getClientOriginalExtension();
-            // Simpan file di folder public/title dan return path
-            $file1->storeAs('public/title', $file1Name);
+            $destinationPath = public_path('/storage/title');
+            $file1->move($destinationPath, $file1Name);
             $title->poto_1 = $file1Name;  // Perbarui poto_1 dengan nama file baru
         }
 
@@ -123,8 +125,8 @@ class TitleController extends Controller
 
             $file2 = $request->file('poto_2');
             $file2Name = time() . '_poto_2.' . $file2->getClientOriginalExtension();
-            // Simpan file di folder public/title dan return path
-            $file2->storeAs('public/title', $file2Name);
+            $destinationPath = public_path('/storage/title');
+            $file2->move($destinationPath, $file2Name);
             $title->poto_2 = $file2Name;  // Perbarui poto_2 dengan nama file baru
         }
 

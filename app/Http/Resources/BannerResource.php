@@ -14,10 +14,6 @@ class BannerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Debugging untuk melihat data yang ada
-        // dd($this->file); // Uncomment jika ingin debug
-
-        // Mengembalikan data banner dengan URL file gambar
         return [
             'id' => $this->id,
             'file' => $this->file,

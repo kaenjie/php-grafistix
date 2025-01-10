@@ -17,9 +17,10 @@ class PhotoResource extends JsonResource
         return [
             'id' => $this->id,
             'title_id' => $this->title_id,
-            'file_path' => asset('storage/' . $this->file_path), // Menggunakan URL akses file
-            'created_at' => $this->created_at->toIso8601String(),
-            'updated_at' => $this->updated_at->toIso8601String(),
+            'file_path' => asset('storage/' . $this->file_path),
+            'img_url' => $this->file_path ? asset('storage/' . $this->file_path) : null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

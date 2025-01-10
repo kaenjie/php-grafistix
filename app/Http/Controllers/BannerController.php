@@ -18,6 +18,17 @@ class BannerController extends Controller
         return BannerResource::collection($banners);
     }
 
+    public function first()
+    {
+        $banners = Banner::first();
+        return response()->json([
+            'file' => $banners->file,
+            'image_url' => $banners->file ? asset('storage/banners/' . $banners->file) : null,
+            'created_at' => $banners->created_at,
+            'updated_at' => $banners->updated_at,
+        ]);
+    }
+
     /**
      * Store a newly created banner in storage.
      */
@@ -25,13 +36,14 @@ class BannerController extends Controller
     {
         // Validasi file gambar dengan key 'file'
         $request->validate([
-            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // Maksimal 5MB
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
         // Menyimpan file gambar dengan key 'file'
         $file = $request->file('file');
         $fileName = time() . '_' . $file->getClientOriginalName();
-        $file->storeAs('public/banners', $fileName); // Menyimpan file di direktori 'public/banners'
+        $destinationPath = storage_path('app/public/banners');
+        $file->move($destinationPath, $fileName);
 
         // Menyimpan data banner di database
         $banner = Banner::create([
@@ -60,7 +72,7 @@ class BannerController extends Controller
     {
         // Validasi file gambar dengan key 'file'
         $request->validate([
-            'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Maksimal 5MB
+            'file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
         // Mencari banner berdasarkan ID
@@ -74,8 +86,8 @@ class BannerController extends Controller
 
             $file = $request->file('file');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/banners', $fileName);
-
+            $destinationPath = storage_path('app/public/banners');
+            $file->move($destinationPath, $fileName);
             $banner->file = $fileName;
         }
 
@@ -100,7 +112,6 @@ class BannerController extends Controller
             Storage::delete('public/banners/' . $banner->file);
         }
 
-        // Menghapus data banner dari database
         $banner->delete();
 
         return response()->json([

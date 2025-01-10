@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Package;
+use App\Models\PackageCategory;
 
 class Order extends Model
 {
@@ -22,8 +22,7 @@ class Order extends Model
         'city',
         'payment_method',
         'has_paid',
-        'order_date',
-        'id_paket', // Foreign key to Package
+        'package_id',
     ];
 
     // Cast field has_paid menjadi boolean
@@ -34,9 +33,9 @@ class Order extends Model
     /**
      * Get the package that owns the order.
      */
-    public function package()
+    public function packageCategory()
     {
-        return $this->belongsTo(Package::class, 'id_paket');
+        return $this->belongsTo(PackageCategory::class, 'package_id');
     }
     
 }

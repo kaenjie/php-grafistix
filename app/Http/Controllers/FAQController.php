@@ -17,11 +17,7 @@ class FAQController extends Controller
     {
         // Mengambil semua FAQ dari database
         $faqs = FAQ::all();
-
-        // Mengembalikan resource FAQ sebagai JSON tanpa pesan "FAQs retrieved successfully"
-        return response()->json([
-            'data' => FAQResource::collection($faqs)
-        ]);
+        return FaqResource::collection($faqs);
     }
 
     /**

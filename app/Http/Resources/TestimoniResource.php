@@ -21,6 +21,7 @@ class TestimoniResource extends JsonResource
             'role' => $this->role,
             'feedback' => $this->feedback,
             'image' => $this->image,
+            'image_url' => $this->image ? asset('storage/testimoni/' . $this->image) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

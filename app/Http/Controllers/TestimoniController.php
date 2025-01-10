@@ -6,6 +6,7 @@ use App\Models\Testimoni;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\TestimoniResource;
 
 class TestimoniController extends Controller
 {
@@ -17,7 +18,7 @@ class TestimoniController extends Controller
     public function index()
     {
         $testimonis = Testimoni::all();
-        return response()->json(['data' => $testimonis]);
+        return TestimoniResource::collection($testimonis);
     }
 
     /**
@@ -45,7 +46,8 @@ class TestimoniController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_image.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/testimoni', $imageName);
+            $destinationPath = storage_path('app/public/testimoni');
+            $image->move($destinationPath, $imageName);
         }
 
         $testimoni = Testimoni::create([
@@ -99,7 +101,8 @@ class TestimoniController extends Controller
             }
             $image = $request->file('image');
             $imageName = time() . '_image.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/testimoni', $imageName);
+            $destinationPath = storage_path('app/public/testimoni');
+            $image->move($destinationPath, $imageName);
         }
 
         $testimoni->update([

@@ -19,6 +19,18 @@ class AboutController extends Controller
         return AboutResource::collection($abouts);
     }
 
+    public function first()
+    {
+        $abouts = About::first();
+        return response()->json([
+            'judul' => $abouts->judul,
+            'deskripsi' => $abouts->deskripsi,
+            'image' => $abouts->image ? asset('storage/about/' . $abouts->image) : null,
+            'created_at' => $abouts->created_at,
+            'updated_at' => $abouts->updated_at,
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -38,7 +50,8 @@ class AboutController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/about', $imageName);
+            $destinationPath = storage_path('app/public/about');
+            $image->move($destinationPath, $imageName);
         }
 
         $about = About::create([
@@ -77,13 +90,10 @@ class AboutController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($about->image && Storage::exists('public/about/' . $about->image)) {
-                Storage::delete('public/about/' . $about->image);
-            }
-
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/about', $imageName);
+            $destinationPath = storage_path('app/public/about');
+            $image->move($destinationPath, $imageName);
 
             $about->image = $imageName;
         }

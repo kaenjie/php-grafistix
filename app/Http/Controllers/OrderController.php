@@ -17,7 +17,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with('package')->get();
+        $orders = Order::all();
         return response()->json([
             'message' => 'Orders retrieved successfully',
             'data' => $orders
@@ -31,37 +31,50 @@ class OrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-     public function store(Request $request)
-     {
-         // Konversi nilai 'has_paid' menjadi boolean
-         $request->merge([
-             'has_paid' => filter_var($request->has_paid, FILTER_VALIDATE_BOOLEAN),
-         ]);
-     
-         // Validasi input
-         $validator = Validator::make($request->all(), [
-             'full_name' => 'required|string|max:255',
-             'email' => 'required|email|max:255',
-             'address' => 'required|string|max:255',
-             'city' => 'required|string|max:255',
-             'payment_method' => 'required|string',
-             'has_paid' => 'required|boolean',
-             'order_date' => 'required|date',
-             'id_paket' => 'required|exists:packages,id',
-         ]);
-     
-         if ($validator->fails()) {
-             return response()->json($validator->errors(), 422);
-         }
-     
-         // Simpan data ke database
-         $order = Order::create($request->all());
-     
-         return response()->json([
-             'message' => 'Order created successfully!',
-             'data' => $order
-         ], Response::HTTP_CREATED);
-     }
+    public function store(Request $request)
+    {
+        // Debugging: Cek data yang diterima
+        \Log::info($request->all());
+
+        // Konversi nilai 'has_paid' menjadi boolean
+        $request->merge([
+            'has_paid' => filter_var($request->has_paid, FILTER_VALIDATE_BOOLEAN),
+        ]);
+
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'payment_method' => 'string',
+            'has_paid' => 'required|boolean',
+            'package_id' => 'required',
+        ]);
+
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Simpan data ke database
+        $order = Order::create([
+            'full_name' => $request->full_name,
+            'email' => $request->email,
+            'address' => $request->address,
+            'city' => $request->city,
+            'payment_method' => $request->payment_method,
+            'has_paid' => $request->has_paid,
+            'package_id' => $request->package_id
+        ]);
+
+        return $request;
+        return response()->json([
+            'message' => 'Order created successfully!',
+            'data' => $order
+        ], Response::HTTP_CREATED);
+    }
+
      
 
     /**
