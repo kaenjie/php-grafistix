@@ -16,7 +16,7 @@ class TitleController extends Controller
      */
     public function index()
     {
-        $titles = Title::with('photos')->get(); // Eager load the related photos
+        $titles = Title::with('photos')->get();
         return response()->json(['data' => $titles]);
     }
 
@@ -32,8 +32,8 @@ class TitleController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'poto_1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Maksimal 5 MB
-            'poto_2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Maksimal 5 MB
+            'poto_1' => 'nullable|image|mimes:jpeg,png,jpg,gif', 
+            'poto_2' => 'nullable|image|mimes:jpeg,png,jpg,gif', 
             'deskripsi' => 'nullable|string',
         ]);
 
@@ -41,7 +41,7 @@ class TitleController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Handle poto_1 upload if exists
+        // poto_1
         $file1Name = null;
         if ($request->hasFile('poto_1')) {
             $file1 = $request->file('poto_1');
@@ -50,7 +50,7 @@ class TitleController extends Controller
             $file1->move($destinationPath, $file1Name);
         }
 
-        // Handle poto_2 upload if exists
+        // poto_2
         $file2Name = null;
         if ($request->hasFile('poto_2')) {
             $file2 = $request->file('poto_2');
@@ -59,7 +59,7 @@ class TitleController extends Controller
             $file2->move($destinationPath, $file2Name);
         }
 
-        // Create title with the provided data
+        // Tambah data
         $title = Title::create([
             'name' => $request->name,
             'poto_1' => $file1Name,

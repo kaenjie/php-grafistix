@@ -85,44 +85,45 @@ class PhotoController extends Controller
             'title_id' => 'sometimes|exists:titles,id',
             'file_path' => 'nullable|file|mimes:jpeg,png,jpg|max:10240',
         ]);
-
+    
         // Jika validasi gagal
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         // Perbarui 'title_id' jika ada dalam request
         if ($request->has('title_id')) {
             $photo->title_id = $request->title_id;
         }
-
-         $url_photo = $photo -> file_path;
-         $filePath = $url_photo;
-
-
+    
         // Perbarui file jika ada dalam request
         if ($request->hasFile('file_path')) {
+            // Hapus file lama jika ada file baru
+            if ($photo->file_path && file_exists(public_path($photo->file_path))) {
+                unlink(public_path($photo->file_path));
+            }
+    
+            // Simpan file baru
             $file = $request->file('file_path');
-            $fileName = time() . '_' . $file_path->getClientOriginalName();
-            $destinationPath = storage_path('uploads/photos', 'public');
-            $filePath->move($destinationPath, $fileName);
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path('/storage/uploads/photos');
+            $file->move($destinationPath, $fileName);
+    
+            // Update path file
+            $photo->file_path = 'uploads/photos/' . $fileName;
         }
-
+    
         // Simpan perubahan ke database
-        $photo->update(
-            [
-                'title_id' => $request->title_id,
-                'file_path' => $filePath, // Path file yang tersimpan
-            ]
-        );
-
+        $photo->save();
+    
         // Kembalikan respons dengan data foto yang sudah diperbarui
         return response()->json([
             'message' => 'Photo updated successfully!',
             'data' => $photo,
-            'file_url' => asset('storage/' . $photo->file_path), // URL akses file
+            'file_url' => asset($photo->file_path), // URL akses file
         ]);
     }
+    
 
     /**
      * Remove the specified photo from storage.
