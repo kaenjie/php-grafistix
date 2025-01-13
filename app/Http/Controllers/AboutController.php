@@ -50,7 +50,7 @@ class AboutController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $destinationPath = storage_path('app/public/about');
+            $destinationPath = public_path('/storage/about');
             $image->move($destinationPath, $imageName);
         }
 
@@ -92,7 +92,7 @@ class AboutController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
-            $destinationPath = storage_path('app/public/about');
+            $destinationPath = public_path('/storage/about');
             $image->move($destinationPath, $imageName);
 
             $about->image = $imageName;
