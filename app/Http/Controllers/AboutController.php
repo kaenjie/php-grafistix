@@ -94,7 +94,6 @@ class AboutController extends Controller
             $imageName = time() . '_' . $image->getClientOriginalName();
             $destinationPath = public_path('/storage/about');
             $image->move($destinationPath, $imageName);
-
             $about->image = $imageName;
         }
 

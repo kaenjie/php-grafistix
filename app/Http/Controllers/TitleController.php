@@ -78,7 +78,6 @@ class TitleController extends Controller
      */
     public function show(Title $title)
     {
-        // Load related photos using eager loading
         $title->load('photos');
         return response()->json(['data' => $title]);
     }
@@ -110,7 +109,6 @@ class TitleController extends Controller
         $file1Name = basename($url_photo1);
         // Handle poto_1 upload jika ada perubahan
         if ($request->hasFile('poto_1')) {
-
             $file1 = $request->file('poto_1');
             $file1Name = time() . '_poto_1.' . $file1->getClientOriginalExtension();
             $destinationPath = public_path('/storage/title');
